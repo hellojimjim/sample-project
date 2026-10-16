@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>서귀포시 기초생활보장 수급 현황 대시보드</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap');
+
+  :root{
+    --ink:#0b0b0b;
+    --paper:#ffffff;
+    --line:#dededb;
+    --soft:#f5f5f1;
+    --lime:#dceeb1;
+    --lilac:#c5b0f4;
+    --cream:#f4ecd6;
+    --mint:#c8e6cd;
+    --coral:#f3c9b6;
+    --pink:#efd4d4;
+    --magenta:#ff3d8b;
+    --green:#1e9b52;
+  }
+
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:#e9e9e6;
+    color:var(--ink);
+    font-family:Pretendard,"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  }
+
+  .stage{
+    width:min(100vw,1600px);
+    aspect-ratio:16/9;
+    min-height:900px;
+    margin:0 auto;
+    padding:34px 42px 30px;
+    overflow:hidden;
+    background:var(--paper);
+    position:relative;
+  }
+
+  header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    height:105px;
+  }
+
+  .eyebrow{
+    font-size:13px;
+    font-weight:800;
+    letter-spacing:.13em;
+    margin-bottom:8px;
+  }
+
+  h1{
+    margin:0;
+    max-width:1030px;
+    font-family:"Gmarket Sans",Pretendard,"Noto Sans KR",sans-serif;
+    font-size:43px;
+    line-height:1.08;
+    letter-spacing:-1.9px;
+    font-weight:800;
+  }
+
+  .header-meta{
+    text-align:right;
+    font-size:13px;
+    line-height:1.55;
+    font-weight:600;
+    padding-top:4px;
+  }
+
+  .badge{
+    display:inline-block;
+    padding:7px 13px;
+    border-radius:999px;
+    background:var(--ink);
+    color:#fff;
+    font-weight:800;
+    margin-bottom:8px;
+  }
+
+  .dashboard{
+    display:grid;
+    grid-template-columns: 1.05fr 1.38fr 1.02fr;
+    grid-template-rows: 216px 260px 218px;
+    gap:16px;
+  }
+
+  .card{
+    border:1px solid var(--line);
+    border-radius:24px;
+    padding:22px;
+    position:relative;
+    overflow:hidden;
+    background:#fff;
+  }
+
+  .flat{border:none}
+  .lime{background:var(--lime)}
+  .lilac{background:var(--lilac)}
+  .cream{background:var(--cream)}
+  .mint{background:var(--mint)}
+  .coral{background:var(--coral)}
+  .black{background:#111;color:#fff}
+
+  .card-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:15px;
+    font-weight:800;
+    margin-bottom:13px;
+    letter-spacing:-.2px;
+  }
+
+  .card-title small{
+    font-size:11px;
+    font-weight:700;
+    opacity:.62;
+  }
+
+  .hero-kpi{
+    grid-column:1;
+    grid-row:1;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .kpi-main{
+    grid-column:1 / 3;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+  }
+
+  .kpi-num{
+    font-family:"Gmarket Sans",Pretendard,sans-serif;
+    font-size:68px;
+    line-height:.9;
+    font-weight:800;
+    letter-spacing:-4px;
+  }
+
+  .kpi-unit{
+    font-size:25px;
+    letter-spacing:-1px;
+    margin-left:4px;
+  }
+
+  .kpi-caption{
+    font-size:14px;
+    font-weight:700;
+    line-height:1.35;
+    max-width:105px;
+    text-align:right;
+  }
+
+  .mini-kpi{
+    border-top:1px solid rgba(0,0,0,.22);
+    padding-top:10px;
+  }
+
+  .mini-kpi strong{
+    display:block;
+    font-size:26px;
+    letter-spacing:-1px;
+    line-height:1;
+    margin-bottom:5px;
+  }
+
+  .mini-kpi span{
+    font-size:12px;
+    font-weight:700;
+  }
+
+  .composition{
+    grid-column:2;
+    grid-row:1;
+    display:grid;
+    grid-template-columns:160px 1fr;
+    align-items:center;
+  }
+
+  .donut{
+    width:142px;
+    height:142px;
+    border-radius:50%;
+    background:conic-gradient(
+      #111 0 82.2%,
+      var(--magenta) 82.2% 97.8%,
+      #7c66b4 97.8% 99.4%,
+      #fff 99.4% 100%
+    );
+    position:relative;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.06);
+  }
+
+  .donut:after{
+    content:"10,237명";
+    position:absolute;
+    inset:27px;
+    border-radius:50%;
+    background:var(--lilac);
+    display:grid;
+    place-items:center;
+    font-size:17px;
+    font-weight:900;
+    letter-spacing:-.6px;
+  }
+
+  .legend{display:grid;gap:9px}
+  .legend-row{
+    display:grid;
+    grid-template-columns:10px 1fr auto;
+    gap:9px;
+    align-items:center;
+    font-size:12px;
+    font-weight:700;
+  }
+  .dot{width:10px;height:10px;border-radius:50%}
+  .legend-row strong{font-size:14px}
+
+  .insight{
+    grid-column:3;
+    grid-row:1;
+  }
+  .quote{
+    font-family:"Gmarket Sans",Pretendard,sans-serif;
+    font-size:27px;
+    line-height:1.25;
+    font-weight:800;
+    letter-spacing:-1.3px;
+    margin-top:13px;
+  }
+  .quote em{
+    font-style:normal;
+    box-shadow:inset 0 -.48em 0 var(--lime);
+  }
+  .insight-bottom{
+    position:absolute;
+    left:22px;right:22px;bottom:18px;
+    display:flex;
+    justify-content:space-between;
+    font-size:12px;
+    font-weight:700;
+  }
+
+  .ranking{
+    grid-column:1 / 3;
+    grid-row:2;
+    display:grid;
+    grid-template-columns:210px 1fr;
+    gap:18px;
+  }
+
+  .ranking-lead{
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+  .ranking-lead .big{
+    font-size:53px;
+    font-weight:900;
+    letter-spacing:-3px;
+    line-height:.95;
+  }
+  .ranking-lead p{
+    margin:9px 0 0;
+    font-size:13px;
+    line-height:1.45;
+    font-weight:650;
+  }
+
+  .bars{
+    display:flex;
+    align-items:flex-end;
+    gap:15px;
+    height:196px;
+    padding:13px 5px 0;
+    border-bottom:1px solid rgba(0,0,0,.3);
+  }
+
+  .bar-item{
+    flex:1;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-end;
+    align-items:center;
+  }
+  .bar-value{
+    font-size:13px;
+    font-weight:900;
+    margin-bottom:6px;
+  }
+  .bar{
+    width:100%;
+    max-width:78px;
+    background:#111;
+    border-radius:14px 14px 0 0;
+    min-height:20px;
+    position:relative;
+  }
+  .bar:nth-child(2){background:#111}
+  .bar-label{
+    font-size:12px;
+    font-weight:800;
+    margin-top:8px;
+    white-space:nowrap;
+  }
+  .bar-share{
+    font-size:10px;
+    font-weight:700;
+    opacity:.6;
+    margin-top:2px;
+  }
+
+  .matrix{
+    grid-column:3;
+    grid-row:2;
+    padding:18px 20px;
+  }
+
+  .matrix-grid{
+    position:relative;
+    height:199px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:1fr 1fr;
+    border:1.5px solid #111;
+    background:#fff;
+  }
+  .quad{
+    padding:10px 12px;
+    font-size:11px;
+    line-height:1.35;
+    font-weight:700;
+  }
+  .quad:nth-child(1){background:var(--coral);border-right:1px solid #111;border-bottom:1px solid #111}
+  .quad:nth-child(2){background:var(--cream);border-bottom:1px solid #111}
+  .quad:nth-child(3){background:var(--pink);border-right:1px solid #111}
+  .quad:nth-child(4){background:#fff}
+  .quad b{
+    display:block;
+    font-size:18px;
+    margin-bottom:2px;
+  }
+  .axis-y{
+    position:absolute;
+    transform:rotate(-90deg);
+    left:-67px;
+    top:94px;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.08em;
+  }
+  .axis-x{
+    position:absolute;
+    right:1px;
+    bottom:-17px;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.08em;
+  }
+
+  .roadmap{
+    grid-column:1 / 3;
+    grid-row:3;
+    padding:20px 24px;
+  }
+  .steps{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-top:14px;
+  }
+  .step{
+    min-height:137px;
+    padding:15px;
+    border-radius:18px;
+    position:relative;
+  }
+  .step:nth-child(1){background:var(--lime)}
+  .step:nth-child(2){background:var(--lilac)}
+  .step:nth-child(3){background:var(--coral)}
+  .step:nth-child(4){background:#111;color:#fff}
+  .step-no{
+    display:inline-grid;
+    place-items:center;
+    width:28px;height:28px;
+    border:1.5px solid currentColor;
+    border-radius:50%;
+    font-size:12px;
+    font-weight:900;
+    margin-bottom:9px;
+  }
+  .step h3{
+    margin:0 0 5px;
+    font-size:17px;
+    letter-spacing:-.6px;
+  }
+  .step p{
+    margin:0;
+    font-size:11px;
+    line-height:1.42;
+    font-weight:650;
+  }
+  .step-time{
+    position:absolute;
+    right:13px;
+    top:17px;
+    font-size:10px;
+    font-weight:900;
+    opacity:.65;
+  }
+
+  .warning{
+    grid-column:3;
+    grid-row:3;
+  }
+  .warning .icon{
+    width:42px;height:42px;
+    border-radius:50%;
+    background:#111;
+    color:#fff;
+    display:grid;
+    place-items:center;
+    font-size:24px;
+    font-weight:900;
+    margin-bottom:14px;
+  }
+  .warning h2{
+    margin:0 0 9px;
+    font-size:24px;
+    line-height:1.2;
+    letter-spacing:-1px;
+  }
+  .warning p{
+    margin:0;
+    font-size:13px;
+    line-height:1.48;
+    font-weight:650;
+  }
+  .warning .tag{
+    display:inline-block;
+    margin-top:13px;
+    padding:6px 10px;
+    border:1px solid #111;
+    border-radius:999px;
+    font-size:10px;
+    font-weight:900;
+  }
+
+  footer{
+    position:absolute;
+    bottom:10px;
+    left:43px;
+    right:43px;
+    display:flex;
+    justify-content:space-between;
+    font-size:9px;
+    font-weight:650;
+    opacity:.58;
+  }
+
+  @media(max-width:1000px){
+    .stage{width:1600px;transform-origin:top left}
+  }
+
+  @media print{
+    @page{size:16in 9in;margin:0}
+    body{background:#fff}
+    .stage{width:1600px;height:900px;margin:0}
+  }
+</style>
+</head>
+<body>
+<main class="stage">
+  <header>
+    <div>
+      <div class="eyebrow">2024 SEOGWIPO WELFARE SNAPSHOT</div>
+      <h1>서귀포시 기초생활보장 수급 현황 진단과<br>취약계층 지원 로드맵</h1>
+    </div>
+    <div class="header-meta">
+      <div class="badge">FINAL REPORT · 2026.10</div><br>
+      기준일 2024.04.30<br>
+      발표용 통합 대시보드
+    </div>
+  </header>
+
+  <section class="dashboard">
+    <article class="card flat lime hero-kpi">
+      <div class="card-title" style="grid-column:1/3">
+        <span>시 전체 수급 현황</span><small>PUBLIC DATA</small>
+      </div>
+      <div class="kpi-main">
+        <div><span class="kpi-num">10,237</span><span class="kpi-unit">명</span></div>
+        <div class="kpi-caption">서귀포시<br>기초생활보장<br>수급권자</div>
+      </div>
+      <div class="mini-kpi"><strong>7,197</strong><span>수급 가구</span></div>
+      <div class="mini-kpi"><strong>1.42명</strong><span>가구당 평균 수급권자</span></div>
+    </article>
+
+    <article class="card flat lilac composition">
+      <div class="donut" aria-label="수급 유형 구성 도넛 차트"></div>
+      <div>
+        <div class="card-title"><span>수급 유형 구성</span><small>PERSONS</small></div>
+        <div class="legend">
+          <div class="legend-row"><i class="dot" style="background:#111"></i><span>일반수급자</span><strong>82.2%</strong></div>
+          <div class="legend-row"><i class="dot" style="background:var(--magenta)"></i><span>조건부수급자</span><strong>15.6%</strong></div>
+          <div class="legend-row"><i class="dot" style="background:#7c66b4"></i><span>특례수급자</span><strong>1.6%</strong></div>
+          <div class="legend-row"><i class="dot" style="background:#fff;border:1px solid #777"></i><span>시설수급자</span><strong>0.6%</strong></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card insight">
+      <div class="card-title"><span>핵심 판단</span><small>KEY MESSAGE</small></div>
+      <div class="quote">복지 우선순위는<br><em>‘규모’와 ‘비중’</em>을<br>함께 봐야 합니다.</div>
+      <div class="insight-bottom"><span>절대 수 → 업무량</span><span>조건부 비중 → 자활 수요</span></div>
+    </article>
+
+    <article class="card flat cream ranking">
+      <div class="ranking-lead">
+        <div>
+          <div class="card-title"><span>수급권자 상위 5개 지역</span><small>TOP 5</small></div>
+          <div class="big">53.6%</div>
+          <p>동홍동·대정읍·성산읍·남원읍·대천동에 전체 수급자의 절반 이상이 집중</p>
+        </div>
+        <div style="font-size:10px;font-weight:800;opacity:.55">단위: 명 / 시 점유율</div>
+      </div>
+      <div class="bars">
+        <div class="bar-item">
+          <div class="bar-value">1,518</div><div class="bar" style="height:100%"></div>
+          <div class="bar-label">동홍동</div><div class="bar-share">14.8%</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-value">1,203</div><div class="bar" style="height:79.2%"></div>
+          <div class="bar-label">대정읍</div><div class="bar-share">11.8%</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-value">1,024</div><div class="bar" style="height:67.5%"></div>
+          <div class="bar-label">성산읍</div><div class="bar-share">10.0%</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-value">917</div><div class="bar" style="height:60.4%"></div>
+          <div class="bar-label">남원읍</div><div class="bar-share">9.0%</div>
+        </div>
+        <div class="bar-item">
+          <div class="bar-value">825</div><div class="bar" style="height:54.3%"></div>
+          <div class="bar-label">대천동</div><div class="bar-share">8.1%</div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card matrix">
+      <div class="card-title"><span>지역 맞춤형 4분면</span><small>잠정 분류</small></div>
+      <div class="matrix-grid">
+        <div class="quad"><b>A</b>규모 큼 · 비중 높음<br>남원읍, 대천동, 표선면,<br>대륜동, 서홍동</div>
+        <div class="quad"><b>B</b>규모 큼 · 비중 낮음<br>동홍동, 대정읍,<br>성산읍</div>
+        <div class="quad"><b>C</b>규모 작음 · 비중 높음<br>중앙동, 효돈동, 정방동,<br>송산동, 예래동</div>
+        <div class="quad"><b>D</b>규모 작음 · 비중 낮음<br>중문동, 안덕면,<br>천지동, 영천동</div>
+        <div class="axis-y">CONDITIONAL SHARE ↑</div>
+        <div class="axis-x">RECIPIENT SCALE →</div>
+      </div>
+    </article>
+
+    <article class="card roadmap">
+      <div class="card-title"><span>검증 가능한 단계별 실행계획</span><small>GATED ROADMAP</small></div>
+      <div class="steps">
+        <div class="step">
+          <span class="step-no">01</span><span class="step-time">0–6개월</span>
+          <h3>즉시 정비</h3>
+          <p>데이터 품질 점검 · 수급률 산출 · 업무량 파악 · 시설수급 분리 관리</p>
+        </div>
+        <div class="step">
+          <span class="step-no">02</span><span class="step-time">6–18개월</span>
+          <h3>조사·평가</h3>
+          <p>자활사업 성과 · 개인별 여건 · 접근성 · 지역 고용환경을 검증</p>
+        </div>
+        <div class="step">
+          <span class="step-no">03</span><span class="step-time">2년차</span>
+          <h3>시범사업</h3>
+          <p>유형별 1~2곳에서 비교 지역과 함께 1년 이상 운영·평가</p>
+        </div>
+        <div class="step">
+          <span class="step-no">04</span><span class="step-time">3년차 이후</span>
+          <h3>확대·조정</h3>
+          <p>성과 기준을 넘긴 사업만 확대하고, 낮은 사업은 개선 또는 종료</p>
+        </div>
+      </div>
+    </article>
+
+    <article class="card flat coral warning">
+      <div class="icon">!</div>
+      <h2>시계열 추세로<br>해석하지 않습니다.</h2>
+      <p>2020~2023년 값은 교육용 가상데이터입니다. 본 진단은 <b>2024년 한 시점의 구조</b>와 검증 가능한 실행계획에 집중합니다.</p>
+      <span class="tag">시설수급 61명은 지역 수요 지표에서 분리</span>
+    </article>
+  </section>
+
+  <footer>
+    <span>출처: 「서귀포시 읍면동별 기초생활보장 수급 현황 진단 및 취약계층 지원 계획」 최종 보고서</span>
+    <span>Font: Gmarket Sans(제목) · Pretendard / Noto Sans KR(본문)</span>
+  </footer>
+</main>
+</body>
+</html>
